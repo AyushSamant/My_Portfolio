@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './components/Navbar.jsx';
 import Hero from './components/Hero.jsx';
 import About from './components/About.jsx';
@@ -11,66 +11,82 @@ import Miscellaneous from './components/Miscellaneous.jsx';
 import Contact from './components/Contact.jsx';
 import Footer from './components/Footer.jsx';
 import ParticlesBackground from './components/ParticlesBackground.jsx';
-import ThreeLoader from './components/ThreeLoader.jsx';
 import './App.css';
 
 function App() {
   const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
+  const [dataStream, setDataStream] = useState([]);
 
   useEffect(() => {
-    // Simulate progress for dramatic effect
-    const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        return prev + Math.random() * 8;
+    // Generate random data stream for the loading screen
+    const interval = setInterval(() => {
+      setDataStream(prev => {
+        const stream = [...prev, Math.random().toString(36).substring(2, 8).toUpperCase()];
+        return stream.slice(-5);
       });
-    }, 120);
+    }, 150);
 
+    // Simulate loading a bit longer to show the animation
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 3500);
+    }, 3200);
 
     return () => {
       clearTimeout(timer);
-      clearInterval(progressInterval);
+      clearInterval(interval);
     };
   }, []);
 
   if (loading) {
     return (
       <div className="loader-container">
-        {/* Three.js full-screen background */}
-        <ThreeLoader />
+        <div className="data-pipeline-loader">
+          <div className="isometric-plane">
+            <div className="grid-lines"></div>
 
-        {/* Overlay UI on top of Three.js canvas */}
-        <div className="loader-overlay">
-          <div className="loader-brand">
-            <span className="loader-logo gradient-text">A</span>
-            <span className="loader-name">yush Samant</span>
-          </div>
-
-          <div className="loader-tagline">
-            <span className="loader-tag-text">Data Scientist</span>
-            <span className="loader-sep">·</span>
-            <span className="loader-tag-text">ML Engineer</span>
-            <span className="loader-sep">·</span>
-            <span className="loader-tag-text">Data Analyst</span>
-          </div>
-
-          <div className="loader-progress-wrap">
-            <div className="loader-progress-bar">
-              <div className="loader-progress-fill" style={{ width: `${Math.min(progress, 100)}%` }} />
+            <div className="server-node source">
+              <div className="cube-layer"></div>
+              <div className="cube-layer"></div>
+              <div className="cube-layer"></div>
+              <span className="node-label">RAW_DATA</span>
             </div>
-            <div className="loader-progress-label">
-              {Math.min(Math.round(progress), 100)}%
+
+            <div className="pipeline-track track-1">
+              <div className="data-packet p1"></div>
+              <div className="data-packet p2"></div>
+            </div>
+
+            <div className="server-node etl">
+              <div className="processing-core">
+                <div className="ring r1"></div>
+                <div className="ring r2"></div>
+              </div>
+              <span className="node-label">ETL_PIPELINE</span>
+            </div>
+
+            <div className="pipeline-track track-2">
+              <div className="data-packet p3"></div>
+              <div className="data-packet p4"></div>
+            </div>
+
+            <div className="server-node analytics">
+              <div className="chart-bars">
+                <div className="bar b1"></div>
+                <div className="bar b2"></div>
+                <div className="bar b3"></div>
+              </div>
+              <span className="node-label">METRICS</span>
             </div>
           </div>
+        </div>
 
-          <div className="loader-status gradient-text">INITIALIZING DATA PIPELINES...</div>
+        <div className="loader-telemetry">
+          <div className="loader-text gradient-text">INITIALIZING DATA PIPELINES...</div>
+          <div className="data-stream">
+            {dataStream.map((packet, i) => (
+              <span key={i} className="stream-packet">0x{packet}</span>
+            ))}
+          </div>
         </div>
       </div>
     );
